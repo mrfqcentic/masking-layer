@@ -1,0 +1,26 @@
+{
+  "name": "masking-layer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Small REST API that extracts and masks PII, credentials, and other crucial data from text via a structured-output LLM.",
+  "engines": {
+    "node": ">=18.18"
+  },
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "tsx tests/run.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.tests.json"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.23",
+    "@types/node": "^22.13.10",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}

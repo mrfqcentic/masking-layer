@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Masking Layer</title>
+  <meta name="description" content="Extract and mask PII, credentials and other crucial data from text via a structured-output LLM.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@100..900&display=swap">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231786c2'/%3E%3Cpath d='M9 22V10l7 7 7-7v12' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <rect width="32" height="32" rx="8"></rect>
+        <path d="M9 22V10l7 7 7-7v12"></path>
+      </svg>
+      <div>
+        <h1>Masking Layer</h1>
+        <p>PII &amp; credential extraction and masking via a structured-output LLM</p>
+      </div>
+    </div>
+    <button id="health-chip" class="chip" type="button" title="API status — click to re-check">
+      <span class="chip-dot" aria-hidden="true"></span>
+      <span id="health-text">Checking API…</span>
+    </button>
+  </header>
+
+  <main class="layout">
+    <section class="instance-wrap" aria-live="polite">
+      <div class="instance-bar">
+        <div class="instance-left">
+          <span class="instance-dot" id="instance-dot" aria-hidden="true"></span>
+          <div class="instance-text">
+            <strong id="instance-state">Checking instance…</strong>
+            <span id="instance-detail"></span>
+          </div>
+        </div>
+        <div class="instance-actions">
+          <button id="provision-btn" class="btn btn-primary btn-sm is-hidden" type="button">Provision instance</button>
+          <button id="delete-btn" class="btn btn-danger is-hidden" type="button">Delete instance</button>
+        </div>
+      </div>
+      <div id="instance-warning" class="warn-banner is-hidden" role="alert">
+        <strong>Instance is live.</strong>
+        <span>It bills your RunPod account while it exists — <strong>delete it before closing this page</strong>. Closing the tab will leave the pod running.</span>
+      </div>
+    </section>
+
+    <section class="panel-results" aria-labelledby="results-heading">
+      <div class="card">
+        <div class="card-head">
+          <h3 id="results-heading">Extracted data <span id="results-count" class="count-pill is-hidden"></span></h3>
+          <button id="copy-json-btn" class="btn btn-ghost is-hidden" type="button">Copy JSON</button>
+        </div>
+        <div id="results-empty" class="empty-state">
+          <p>Extractions will appear here.</p>
+          <p class="empty-hint">Add text on the right and run <strong>Extract &amp; mask</strong>.</p>
+        </div>
+        <div id="results-loading" class="empty-state is-hidden">
+          <span class="spinner spinner-brand" aria-hidden="true"></span>
+          <p>Analyzing text…</p>
+        </div>
+        <p id="no-extractions" class="empty-state is-hidden">No PII, credentials or crucial data detected in this text.</p>
+        <div id="results-table-wrap" class="table-wrap is-hidden">
+          <table>
+            <thead>
+              <tr><th scope="col">#</th><th scope="col">Label</th><th scope="col">Category</th><th scope="col">Value</th></tr>
+            </thead>
+            <tbody id="results-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3>Masked text</h3>
+          <button id="copy-mask-btn" class="btn btn-ghost is-hidden" type="button">Copy</button>
+        </div>
+        <div id="masked-text" class="masked-text is-placeholder">The masked version of your text will appear here, with every detected value replaced by its mask label.</div>
+      </div>
+
+      <p id="meta-line" class="meta-line is-hidden"></p>
+    </section>
+
+    <section class="panel-input" aria-labelledby="input-heading">
+      <div class="card card-flush">
+        <div class="card-head">
+          <h3 id="input-heading">Text to mask</h3>
+          <div id="sample-buttons" class="sample-buttons" role="group" aria-label="Load a sample text"></div>
+        </div>
+        <div class="input-body">
+          <label class="visually-hidden" for="input-text">Text to analyze</label>
+          <textarea id="input-text" placeholder="Paste or type the text that should be analyzed…" spellcheck="false"></textarea>
+          <div class="field-foot">
+            <span id="char-counter" class="char-counter">0 / 100,000</span>
+            <button id="submit-btn" class="btn btn-primary" type="button" aria-busy="false">
+              <span class="btn-label">Extract &amp; mask</span>
+              <span class="spinner spinner-btn is-hidden" aria-hidden="true"></span>
+            </button>
+          </div>
+          <p class="input-hint">Ctrl/⌘ + Enter to run</p>
+          <div id="error-banner" class="error-banner is-hidden" role="alert">
+            <p id="error-text"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>POST <code>/v1/extract</code> · GET <code>/health</code> · stateless · endpoint &amp; key configurable via <code>LLM_BASE_URL</code> / <code>LLM_API_KEY</code></p>
+  </footer>
+
+  <noscript><div class="error-banner noscript">This page needs JavaScript enabled to call the extraction API.</div></noscript>
+  <script src="app.js" defer></script>
+</body>
+</html>
