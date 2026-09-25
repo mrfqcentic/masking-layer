@@ -409,6 +409,7 @@ export function createApp() {
       mode: llmMode(),
       model: config.model ?? "auto",
       temperature: config.temperature,
+      experiment: config.extractExperiment,
     });
   });
 

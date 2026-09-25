@@ -46,6 +46,7 @@ interface ServerInfo {
   ok?: boolean;
   model?: string;
   temperature?: number;
+  experiment?: number;
 }
 
 async function fetchHealth(): Promise<ServerInfo | null> {
@@ -180,7 +181,7 @@ async function main(): Promise<void> {
   const cleanupServer = await ensureServer();
   const info = await fetchHealth();
   console.log(
-    `masking-layer eval: ${CASES.length} cases | ${BASE_URL} | model=${info?.model ?? "?"} temperature=${info?.temperature ?? "?"} | concurrency=${CONCURRENCY}`,
+    `masking-layer eval: ${CASES.length} cases | ${BASE_URL} | model=${info?.model ?? "?"} temperature=${info?.temperature ?? "?"} experiment=${info?.experiment ?? 0} | concurrency=${CONCURRENCY}`,
   );
 
   const results: CaseResult[] = [];

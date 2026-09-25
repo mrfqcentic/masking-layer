@@ -1,5 +1,5 @@
 import { config } from "./config.js";
-import { RESPONSE_FORMAT, SYSTEM_INSTRUCTION } from "./prompt.js";
+import { parsePairChain, RESPONSE_FORMAT, systemInstruction } from "./prompt.js";
 
 export interface LlmEndpoint {
   baseUrl: string;
@@ -81,17 +81,18 @@ export async function extractRaw(
   endpoint: LlmEndpoint,
 ): Promise<{ model: string; raw: unknown[] }> {
   const model = await resolveModel(endpoint);
+  const experiment = config.extractExperiment === 2 ? 2 : config.extractExperiment === 1 ? 1 : 0;
   const body: Record<string, unknown> = {
     model,
     messages: [
-      { role: "system", content: SYSTEM_INSTRUCTION },
+      { role: "system", content: systemInstruction(experiment) },
       { role: "user", content: message },
     ],
     temperature: config.temperature,
     top_p: config.topP,
-    response_format: RESPONSE_FORMAT,
     chat_template_kwargs: { enable_thinking: true },
   };
+  if (experiment !== 2) body.response_format = RESPONSE_FORMAT;
   if (config.maxTokens !== undefined) body.max_tokens = config.maxTokens;
 
   let res: Response;
@@ -118,8 +119,10 @@ export async function extractRaw(
 
   const json = (await res.json()) as ChatCompletionResponse;
   const content = json.choices?.[0]?.message?.content;
-  if (typeof content !== "string" || content.trim() === "") {
+  if (typeof content !== "string" || (experiment !== 2 && content.trim() === "")) {
     throw new LlmError("LLM returned empty content");
   }
-  return { model, raw: parseJsonArray(content) };
+  if (experiment === 2) return { model, raw: parsePairChain(content) };
+  const visible = content.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+  return { model, raw: parseJsonArray(visible || content) };
 }
